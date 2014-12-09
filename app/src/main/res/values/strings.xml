@@ -4,5 +4,10 @@
     <string name="app_name">SYMS</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="Mom_Start">Mom</string>
+    <string name="Kid_Start">Mom\'s Child</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="choose_mom">Where is your mom ?</string>
+    <string name="add_kid">Add</string>
 
 </resources>
