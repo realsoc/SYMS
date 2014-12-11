@@ -9,5 +9,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="choose_mom">Where is your mom ?</string>
     <string name="add_kid">Add</string>
+    <string name="title_edit_kids">Edit</string>
 
 </resources>

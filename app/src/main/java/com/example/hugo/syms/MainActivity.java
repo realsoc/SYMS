@@ -10,20 +10,29 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.squareup.otto.Bus;
+import com.squareup.otto.ThreadEnforcer;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity{
+    private static Bus bus;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean neverLaunched = sharedPreferences.getBoolean("neverLaunched", true);
+        bus = new Bus(ThreadEnforcer.ANY);
+        bus.register(this);
+
         if(neverLaunched){
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
             if (savedInstanceState == null) {
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.container, FirstOpenFragment.newInstance()).commit();
+                        .add(R.id.container, FirstOpenFragment.newInstance(bus)).commit();
             }
         } else{
             Log.d("TOTO", "JE CROIS QUIE FUCK");
@@ -55,4 +64,7 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public Bus getBus(){
+        return bus;
+    }
 }
