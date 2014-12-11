@@ -37,7 +37,7 @@ public class EditKidDialogFragment extends DialogFragment {
     private static Bus bus;
     int mNum;
     private Kid currentKid;
-    private String title = getString(R.string.title_edit_kids);
+    private String title;
     private Bitmap picture;
     private String name;
     private String number;
@@ -47,11 +47,10 @@ public class EditKidDialogFragment extends DialogFragment {
      * Create a new instance of MyDialogFragment, providing "num"
      * as an argument.
      */
-    static EditKidDialogFragment newInstance(int mNum, Kid kid, Bus bus) {
+    static EditKidDialogFragment newInstance(int mNum, Kid kid) {
         EditKidDialogFragment f = new EditKidDialogFragment();
 
         // Supply num input as an argument.
-        setBus(bus);
         Bundle args = new Bundle();
         args.putString("name", kid.getName());
         args.putString("number", kid.getNumber());
@@ -59,8 +58,15 @@ public class EditKidDialogFragment extends DialogFragment {
         return f;
     }
 
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+    }
+
     public EditKidDialogFragment(){
+        bus = BusProvider.getInstance();
         bus.register(this);
+        title = getString(R.string.title_edit_kids);
     }
 
     @Override
@@ -156,5 +162,11 @@ public class EditKidDialogFragment extends DialogFragment {
 
     public static void setBus(Bus bus) {
         EditKidDialogFragment.bus = bus;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        bus.unregister(this);
     }
 }

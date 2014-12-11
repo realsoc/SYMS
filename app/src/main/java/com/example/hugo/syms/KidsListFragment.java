@@ -6,6 +6,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -47,9 +49,9 @@ public class KidsListFragment extends Fragment {
 
     public KidsListFragment() {
         kids = new ArrayList<Kid>();
-        bus = ((MainActivity)getActivity()).getBus();
+        bus = BusProvider.getInstance();
         bus.register(this);
-        adapter = new KidsAdapter(getActivity(),kids);
+
     }
 
     @Override
@@ -62,7 +64,8 @@ public class KidsListFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView =  inflater.inflate(R.layout.fragment_kids_list, container, false);
-        ListView listView = (ListView) rootView.findViewById(R.id.list_item);
+        ListView listView = (ListView) rootView.findViewById(R.id.kid_list);
+        adapter = new KidsAdapter(getActivity(),kids);
         listView.setAdapter(adapter);
         setHasOptionsMenu(true);
         return rootView;
@@ -72,6 +75,8 @@ public class KidsListFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.choosekidsfragment, menu);
+        super.onCreateOptionsMenu(menu,inflater);
+
     }
 
     @Override
@@ -80,20 +85,20 @@ public class KidsListFragment extends Fragment {
             case PICK_CONTACT_REQUEST:
                 if(resultCode == getActivity().RESULT_OK){
                     Uri contactUri = data.getData();
-                    String[] projection = {ContactsContract.CommonDataKinds.Phone.NUMBER};
+                    String[] projection = {ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME};
                     Cursor cursor = getActivity().getContentResolver()
                             .query(contactUri, projection, null, null, null);
                     cursor.moveToFirst();
-
                     // Retrieve the phone number from the NUMBER column
-                    int column = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+                    int column = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER);
                     String number = cursor.getString(column);
-                    column = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NAME_RAW_CONTACT_ID);
+                    column = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
                     String name = cursor.getString(column);
                     Kid newKid = new Kid(name, number);
                     if(!kids.contains(newKid)){
-                        EditKidDialogFragment newFragment = EditKidDialogFragment.newInstance(1,newKid, bus);
-                        newFragment.show(getActivity().getSupportFragmentManager(), "toto");
+                        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                        ft.addToBackStack(null);
+                        ft.replace(R.id.container, EditKidDialogFragment.newInstance(1, newKid)).commit();
                     }else{
                         Toast.makeText(getActivity(),"Kid already in the list !", Toast.LENGTH_SHORT).show();
                     }
@@ -127,5 +132,11 @@ public class KidsListFragment extends Fragment {
                 kids.add(kiddo);
             }
         }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        bus.unregister(this);
     }
 }

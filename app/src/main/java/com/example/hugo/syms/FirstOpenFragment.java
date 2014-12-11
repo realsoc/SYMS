@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 
 /**
@@ -39,14 +40,14 @@ public class FirstOpenFragment extends Fragment{
      * @return A new instance of fragment FirstOpenFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static FirstOpenFragment newInstance(Bus bus) {
+    public static FirstOpenFragment newInstance() {
         FirstOpenFragment fragment = new FirstOpenFragment();
-        setBus(bus);
 
         return fragment;
     }
 
     public FirstOpenFragment() {
+        bus = BusProvider.getInstance();
         bus.register(this);
 
     }
@@ -108,8 +109,8 @@ public class FirstOpenFragment extends Fragment{
                     int column = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
                     String number = cursor.getString(column);
 
-
                     Toast.makeText(getActivity(), number, Toast.LENGTH_SHORT).show();
+
 
                 }
         }
@@ -119,13 +120,11 @@ public class FirstOpenFragment extends Fragment{
 
     public void showEditKidDialog(Kid kid) {
         // Create an instance of the dialog fragment and show it
-        DialogFragment dialog = EditKidDialogFragment.newInstance(1, kid, bus);
+        DialogFragment dialog = EditKidDialogFragment.newInstance(1, kid);
         dialog.show(getActivity().getSupportFragmentManager(), "EditKidDialogFragment");
     }
 
-    public static void setBus(Bus bus) {
-        FirstOpenFragment.bus = bus;
-    }
+
 
 
     /**

@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -16,7 +17,7 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
 
 
-public class MainActivity extends ActionBarActivity{
+public class MainActivity extends FragmentActivity{
     private static Bus bus;
 
 
@@ -32,7 +33,7 @@ public class MainActivity extends ActionBarActivity{
             setContentView(R.layout.activity_main);
             if (savedInstanceState == null) {
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.container, FirstOpenFragment.newInstance(bus)).commit();
+                        .add(R.id.container, FirstOpenFragment.newInstance()).commit();
             }
         } else{
             Log.d("TOTO", "JE CROIS QUIE FUCK");
@@ -45,6 +46,7 @@ public class MainActivity extends ActionBarActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
@@ -62,9 +64,5 @@ public class MainActivity extends ActionBarActivity{
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    public Bus getBus(){
-        return bus;
     }
 }
