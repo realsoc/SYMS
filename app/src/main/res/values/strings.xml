@@ -10,5 +10,7 @@
     <string name="choose_mom">Where is your mom ?</string>
     <string name="add_kid">Add</string>
     <string name="title_edit_kids">Edit</string>
+    <string name="title_activity_edit_kid">EditKid</string>
+    <string name="title_first_open_activity">FirstOpenActivity</string>
 
 </resources>

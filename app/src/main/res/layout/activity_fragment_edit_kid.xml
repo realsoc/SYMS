@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:layout_marginTop="50dp"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/kid_picture"
+        android:focusableInTouchMode="false"
+        android:src="@drawable/ic_launcher"
+        android:onClick="changeImage"/>
+    <EditText
+        android:layout_marginTop="50dp"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:id="@+id/kid_name"
+        android:hint="Name"/>
+
+    <TextView
+        android:textSize="20dp"
+        android:layout_marginTop="50dp"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="phone"
+        android:id="@+id/kid_phone"
+        android:text="0617217456"/>
+
+    <Spinner
+        android:layout_marginTop="25dp"
+        android:layout_gravity="center"
+        android:layout_width="75dp"
+        android:layout_height="30dp"
+        android:id="@+id/kid_gender" />
+    <TextView
+        android:gravity="center"
+        android:layout_marginTop="50dp"
+        android:layout_gravity="center"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:text="30 Mai 1992"
+        android:onClick="showDatePickerDialog" />
+
+    <LinearLayout
+        android:layout_marginTop="50dp"
+        android:layout_gravity="center"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <Button
+            android:layout_marginRight="45dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:onClick="cancelEditKid"/>
+        <Button
+            android:text="Update"
+            android:layout_marginLeft="45dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="updateKid"/>
+        </LinearLayout>
+
+
+
+</LinearLayout>

@@ -16,6 +16,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+        android:name=".FirstOpenActivity"
+        android:label="@string/title_first_open_activity"
+        android:parentActivityName="com.example.hugo.syms.MainActivity" >
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value="com.example.hugo.syms.MainActivity" />
+    </activity>
     </application>
 
 </manifest>

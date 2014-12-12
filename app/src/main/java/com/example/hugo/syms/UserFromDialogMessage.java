@@ -3,11 +3,11 @@ package com.example.hugo.syms;
 /**
  * Created by Hugo on 11/12/2014.
  */
-public class BusMessage {
+public class UserFromDialogMessage {
     private Kid mKid;
     private boolean canceled = true;
 
-    public BusMessage(Kid mKid, boolean canceled) {
+    public UserFromDialogMessage(Kid mKid, boolean canceled) {
         this.mKid = mKid;
         this.canceled = canceled;
     }

@@ -1,5 +1,6 @@
 package com.example.hugo.syms;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -35,7 +36,8 @@ public class KidsListFragment extends Fragment {
     private ArrayList<Kid> kids;
     private KidsAdapter adapter;
     private Bus bus;
-    private static final int PICK_CONTACT_REQUEST = 1;
+    private static final int KID_EDIT_REQUEST = 5;
+    private static final int KID_CONTACT_REQUEST = 3;
 
     /**
      * Use this factory method to create a new instance of
@@ -55,6 +57,12 @@ public class KidsListFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        ((FirstOpenActivity)getActivity()).setKidsListFragment(this);
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
@@ -62,8 +70,7 @@ public class KidsListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View rootView =  inflater.inflate(R.layout.fragment_kids_list, container, false);
+        View rootView =  inflater.inflate(R.layout.fragment_kids_list, container,false);
         ListView listView = (ListView) rootView.findViewById(R.id.kid_list);
         adapter = new KidsAdapter(getActivity(),kids);
         listView.setAdapter(adapter);
@@ -74,51 +81,23 @@ public class KidsListFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        Log.d("ListKid", "Createoptionmenu");
         inflater.inflate(R.menu.choosekidsfragment, menu);
-        super.onCreateOptionsMenu(menu,inflater);
-
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch(requestCode){
-            case PICK_CONTACT_REQUEST:
-                if(resultCode == getActivity().RESULT_OK){
-                    Uri contactUri = data.getData();
-                    String[] projection = {ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME};
-                    Cursor cursor = getActivity().getContentResolver()
-                            .query(contactUri, projection, null, null, null);
-                    cursor.moveToFirst();
-                    // Retrieve the phone number from the NUMBER column
-                    int column = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER);
-                    String number = cursor.getString(column);
-                    column = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
-                    String name = cursor.getString(column);
-                    Kid newKid = new Kid(name, number);
-                    if(!kids.contains(newKid)){
-                        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-                        ft.addToBackStack(null);
-                        ft.replace(R.id.container, EditKidDialogFragment.newInstance(1, newKid)).commit();
-                    }else{
-                        Toast.makeText(getActivity(),"Kid already in the list !", Toast.LENGTH_SHORT).show();
-                    }
-
-                }
-        }
-    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case R.id.action_add:
+                Toast.makeText(getActivity(),"ADD", Toast.LENGTH_SHORT).show();
                 Intent pickContactIntent = new Intent(Intent.ACTION_PICK, Uri.parse("content://contacts"));
                 pickContactIntent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE);
-                startActivityForResult(pickContactIntent, PICK_CONTACT_REQUEST);
-
+                getActivity().startActivityForResult(pickContactIntent, KID_CONTACT_REQUEST);
         }
         return true;
     }
-    @Subscribe
-    public void answerAvailable(BusMessage message) {
+    /*@Subscribe
+    public void answerAvailable(UserFromDialogMessage message) {
         Kid kiddo = message.getmKid();
         boolean canceled = message.isCanceled();
         int index = kiddo.getIndexInArrayList(kids);
@@ -132,11 +111,60 @@ public class KidsListFragment extends Fragment {
                 kids.add(kiddo);
             }
         }
+    }*/
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Toast.makeText(getActivity(),"KIDSLISTFRAGMENTACTIVITYRESULT", Toast.LENGTH_SHORT).show();
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         bus.unregister(this);
+        ((FirstOpenActivity)getActivity()).setKidsListFragment(null);
     }
+
+    public int getKidIndex(Kid kid){
+        int i = 0;
+        boolean found = false;
+        for (Kid currentKid :kids){
+            if (kid.getNumber().equals(currentKid.getNumber())){
+                found = true;
+                break;
+            }
+            i++;
+        }
+        if(!found){
+            i = -1;
+        }
+        return i;
+    }
+
+    public void kidUpdate(Kid kid){
+        int index = getKidIndex(kid);
+        if(index != -1){
+            kids.remove(index);
+        }
+        kids.add(kid);
+    }
+
+    public void kidSelected(Kid kid){
+        Bundle bundle = new Bundle();
+        Toast.makeText(getActivity(),"kidSelected",Toast.LENGTH_SHORT).show();
+        bundle.putString("name",kid.getName());
+        bundle.putString("number", kid.getNumber());
+        showEditKidDialog(bundle);
+
+    }
+    public void showEditKidDialog(Bundle bundle) {
+        Fragment fragment = new EditKidDialogFragment();
+        fragment.setArguments(bundle);
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.replace(R.id.container_first_open, fragment, "EditKidFragment");
+        ft.addToBackStack(null);
+        ft.commitAllowingStateLoss();
+    }
+
 }
