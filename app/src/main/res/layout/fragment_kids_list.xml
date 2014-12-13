@@ -4,15 +4,9 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.example.hugo.syms.KidsListFragment">
-
-
     <ListView
         android:id="@+id/kid_list"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
         </ListView>
-
-
-
-
 </LinearLayout>

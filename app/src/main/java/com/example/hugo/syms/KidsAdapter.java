@@ -1,6 +1,7 @@
 package com.example.hugo.syms;
 
 import android.content.Context;
+import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,4 +39,5 @@ public class KidsAdapter extends ArrayAdapter<Kid> {
         // change the icon for Windows and iPhone
         return rowView;
     }
+
 }

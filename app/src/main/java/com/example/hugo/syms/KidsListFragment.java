@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -28,11 +29,12 @@ import java.util.ArrayList;
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
  * to handle interaction events.
- * Use the {@link KidsListFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * Use the {@link KidsListFragment#getInstance} method to
+ * get the instance of this fragment.
  */
 public class KidsListFragment extends Fragment {
 
+    private static KidsListFragment instance = null;
     private ArrayList<Kid> kids;
     private KidsAdapter adapter;
     private Bus bus;
@@ -44,9 +46,11 @@ public class KidsListFragment extends Fragment {
      * this fragment using the provided parameters.
      * @return A new instance of fragment ChooseKidsFragment.
      */
-    public static KidsListFragment newInstance() {
-        KidsListFragment fragment = new KidsListFragment();
-        return fragment;
+    public static KidsListFragment getInstance() {
+        if(instance == null){
+            instance = new KidsListFragment();
+        }
+        return instance;
     }
 
     public KidsListFragment() {
@@ -59,7 +63,6 @@ public class KidsListFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        ((FirstOpenActivity)getActivity()).setKidsListFragment(this);
     }
 
     @Override
@@ -92,7 +95,7 @@ public class KidsListFragment extends Fragment {
                 Toast.makeText(getActivity(),"ADD", Toast.LENGTH_SHORT).show();
                 Intent pickContactIntent = new Intent(Intent.ACTION_PICK, Uri.parse("content://contacts"));
                 pickContactIntent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE);
-                getActivity().startActivityForResult(pickContactIntent, KID_CONTACT_REQUEST);
+                startActivityForResult(pickContactIntent, KID_CONTACT_REQUEST);
         }
         return true;
     }
@@ -115,15 +118,26 @@ public class KidsListFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Toast.makeText(getActivity(),"KIDSLISTFRAGMENTACTIVITYRESULT", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(),"OnactivityresultKidlistFragment",Toast.LENGTH_SHORT);
         super.onActivityResult(requestCode, resultCode, data);
+        switch(requestCode){
+            case KID_CONTACT_REQUEST:
+                if(resultCode == getActivity().RESULT_OK){
+                    Kid newKid = retrieveKidFromIntent(data);
+                    kidSelected(newKid);
+                }
+                break;
+            case KID_EDIT_REQUEST:
+
+                break;
+
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         bus.unregister(this);
-        ((FirstOpenActivity)getActivity()).setKidsListFragment(null);
     }
 
     public int getKidIndex(Kid kid){
@@ -155,16 +169,32 @@ public class KidsListFragment extends Fragment {
         Toast.makeText(getActivity(),"kidSelected",Toast.LENGTH_SHORT).show();
         bundle.putString("name",kid.getName());
         bundle.putString("number", kid.getNumber());
-        showEditKidDialog(bundle);
-
+        Toast.makeText(getActivity(),"name "+kid.getName()+" number "+kid.getNumber(),Toast.LENGTH_SHORT).show();
+        showEditKidDialog(kid);
     }
-    public void showEditKidDialog(Bundle bundle) {
-        Fragment fragment = new EditKidDialogFragment();
-        fragment.setArguments(bundle);
+    public void showEditKidDialog(Kid kid) {
+
+        EditKidDialogFragment fragment = EditKidDialogFragment.newInstance(kid, this);
+        fragment.setName(kid.getName());
+        fragment.setNumber(kid.getNumber());
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.container_first_open, fragment, "EditKidFragment");
         ft.addToBackStack(null);
         ft.commitAllowingStateLoss();
     }
+
+    public Kid retrieveKidFromIntent(Intent data){
+        Uri contactUri = data.getData();
+        String[] projection = {ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME};
+        Cursor cursor = getActivity().getContentResolver()
+                .query(contactUri, projection, null, null, null);
+        cursor.moveToFirst();
+        int column = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER);
+        String number = cursor.getString(column);
+        column = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
+        String name = cursor.getString(column);
+        return new Kid(name, number);
+    }
+
 
 }
