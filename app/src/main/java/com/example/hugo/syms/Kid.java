@@ -7,6 +7,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.telephony.PhoneNumberUtils;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -14,17 +15,23 @@ import java.util.Date;
  * Created by Hugo on 09/12/2014.
  */
 public class Kid implements Parcelable{
-    private Bitmap picture;
+    private InputStream picturePath;
     private String name;
     private String number;
     private Date birthday;
 
-    public Kid(String name, String number){
+    public Kid(String name, String number, InputStream picturePath){
         birthday = new Date();
         this.name = name;
         this.number = number;
-        picture  = BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.ic_launcher);
+        this.picturePath  = picturePath;
     }
+
+    public Kid(String name, String number) {
+        this.name = name;
+        this.number = number;
+    }
+
     public String getName(){
         return this.name;
     }
@@ -36,15 +43,15 @@ public class Kid implements Parcelable{
         return birthday;
     }
 
-    public Bitmap getPicture() {
-        return picture;
+    public InputStream getPicture() {
+        return picturePath;
     }
 
     public void setName(String newName){
         name = newName;
     }
-    public void setPicture(Bitmap newPicture){
-        picture = newPicture;
+    public void setPicture(InputStream newPicture){
+        picturePath = newPicture;
     }
 
     public void setBirthday(Date newBirthday){

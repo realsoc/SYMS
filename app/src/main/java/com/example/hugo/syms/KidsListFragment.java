@@ -1,8 +1,11 @@
 package com.example.hugo.syms;
 
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -16,12 +19,16 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 
@@ -93,8 +100,7 @@ public class KidsListFragment extends Fragment {
         switch(item.getItemId()){
             case R.id.action_add:
                 Toast.makeText(getActivity(),"ADD", Toast.LENGTH_SHORT).show();
-                Intent pickContactIntent = new Intent(Intent.ACTION_PICK, Uri.parse("content://contacts"));
-                pickContactIntent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE);
+                Intent pickContactIntent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
                 startActivityForResult(pickContactIntent, KID_CONTACT_REQUEST);
         }
         return true;
@@ -124,7 +130,7 @@ public class KidsListFragment extends Fragment {
             case KID_CONTACT_REQUEST:
                 if(resultCode == getActivity().RESULT_OK){
                     Kid newKid = retrieveKidFromIntent(data);
-                    kidSelected(newKid);
+                    showEditKidDialog(newKid);
                 }
                 break;
             case KID_EDIT_REQUEST:
@@ -164,19 +170,10 @@ public class KidsListFragment extends Fragment {
         kids.add(kid);
     }
 
-    public void kidSelected(Kid kid){
-        Bundle bundle = new Bundle();
-        Toast.makeText(getActivity(),"kidSelected",Toast.LENGTH_SHORT).show();
-        bundle.putString("name",kid.getName());
-        bundle.putString("number", kid.getNumber());
-        Toast.makeText(getActivity(),"name "+kid.getName()+" number "+kid.getNumber(),Toast.LENGTH_SHORT).show();
-        showEditKidDialog(kid);
-    }
     public void showEditKidDialog(Kid kid) {
 
         EditKidDialogFragment fragment = EditKidDialogFragment.newInstance(kid, this);
-        fragment.setName(kid.getName());
-        fragment.setNumber(kid.getNumber());
+        fragment.setCurrentKid(kid);
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.container_first_open, fragment, "EditKidFragment");
         ft.addToBackStack(null);
@@ -184,16 +181,101 @@ public class KidsListFragment extends Fragment {
     }
 
     public Kid retrieveKidFromIntent(Intent data){
-        Uri contactUri = data.getData();
-        String[] projection = {ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME};
+        Kid retKid = null;
+        Uri dataUri = data.getData();
+        String id = retrieveIdFromUri(dataUri);
+        InputStream picture = retrieveContactPhoto(dataUri, id);
+        String name = retrieveContactName(dataUri);
+        String number = retrieveContactNumber(dataUri, id);
+        if(picture == null){
+            retKid = new Kid(name,number);
+            Toast.makeText(getActivity(),"PICTURE NOT FOUND", Toast.LENGTH_SHORT).show();
+        }
+        else{
+                    retKid = new Kid(name,number,picture);
+        }
+        return retKid;
+
+    }
+    public String retrieveNumberFromIntent(Uri dataUri){
+        String number = null;
+        String[] projection = {ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER};
         Cursor cursor = getActivity().getContentResolver()
-                .query(contactUri, projection, null, null, null);
-        cursor.moveToFirst();
-        int column = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER);
-        String number = cursor.getString(column);
-        column = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
-        String name = cursor.getString(column);
-        return new Kid(name, number);
+                .query(dataUri, projection, null, null, null);
+        if(cursor.moveToFirst()){
+            int column = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER);
+            number = cursor.getString(column);
+        }
+       return number;
+    }
+
+    public String retrieveNameFromIntent(Uri dataUri){
+        String name = null;
+        String[] projection = {ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME};
+        Cursor cursor = getActivity().getContentResolver()
+                .query(dataUri, projection, null, null, null);
+        if(cursor.moveToFirst()){
+            int column = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
+            name = cursor.getString(column);
+        }
+        return name;
+    }
+    public String retrieveIdFromUri(Uri dataUri){
+        String id = null;
+        Cursor cursor = getActivity().getContentResolver().query(dataUri,
+                new String[]{ContactsContract.Contacts._ID},
+                null, null, null);
+        if (cursor.moveToFirst()) {
+            id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+        }
+        return id;
+    }
+    private InputStream retrieveContactPhoto(Uri uri, String id) {
+
+        InputStream photo = null;
+
+        try {
+            InputStream inputStream = ContactsContract.Contacts.openContactPhotoInputStream(getActivity().getContentResolver(),
+                    ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, new Long(id)));
+
+            if (inputStream != null) {
+                photo = inputStream;
+                inputStream.close();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return photo;
+    }
+
+    private String retrieveContactNumber(Uri uri, String id) {
+
+        String contactNumber = null;
+        // Using the contact ID now we will get contact phone number
+        Cursor cursorPhone = getActivity().getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER},
+                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ? AND " +
+                        ContactsContract.CommonDataKinds.Phone.TYPE + " = " +
+                        ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE,
+                new String[]{id},
+        null);
+
+        if (cursorPhone.moveToFirst()) {
+            contactNumber = cursorPhone.getString(cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+        }
+        cursorPhone.close();
+        return contactNumber;
+    }
+
+    private String retrieveContactName(Uri uri) {
+        String contactName = null;
+        Cursor cursor = getActivity().getContentResolver().query(uri, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+        }
+        cursor.close();
+        return contactName;
     }
 
 

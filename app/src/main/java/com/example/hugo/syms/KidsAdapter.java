@@ -1,6 +1,8 @@
 package com.example.hugo.syms;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,7 +37,8 @@ public class KidsAdapter extends ArrayAdapter<Kid> {
 
         phone.setText(kids.get(position).getNumber());
         name.setText(kids.get(position).getName());
-        picture.setImageBitmap(kids.get(position).getPicture());
+        Bitmap tempPhoto = BitmapFactory.decodeStream(kids.get(position).getPicture());
+        picture.setImageBitmap(tempPhoto);
         // change the icon for Windows and iPhone
         return rowView;
     }

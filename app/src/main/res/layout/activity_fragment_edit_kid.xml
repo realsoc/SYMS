@@ -3,21 +3,19 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="changeImage"
-        android:id="@+id/select_picture"
-        ></Button>
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="150dp"
+    android:fillViewport="true">
     <ImageView
-
-        android:layout_marginTop="50dp"
         android:layout_gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:id="@+id/kid_picture"
-        android:src="@drawable/ic_launcher"
+        android:src="@drawable/ic_contact_picture_holo_light"
         />
+    </ScrollView>
+
     <EditText
         android:layout_marginTop="50dp"
         android:layout_gravity="center"
@@ -54,7 +52,7 @@
         android:id="@+id/choose_birthday_kid" />
 
     <LinearLayout
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="5dp"
         android:layout_gravity="center"
         android:orientation="horizontal"
         android:layout_width="wrap_content"
