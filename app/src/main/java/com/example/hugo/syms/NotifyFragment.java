@@ -17,6 +17,7 @@ import android.widget.ListView;
 
 import com.example.hugo.syms.data.DatabaseContract;
 import com.example.hugo.syms.data.DatabaseHelper;
+import com.example.hugo.syms.data.Kid;
 import com.example.hugo.syms.data.Notification;
 import com.example.hugo.syms.data.NotificationDAO;
 
@@ -31,10 +32,13 @@ public class NotifyFragment extends Fragment implements LoaderManager.LoaderCall
     public final static int NOTIFICATION_LOADER = 0;
     private NotificationAdapter notificationAdapter;
     private DatabaseHelper databaseHelper;
+    private KidViewFragment mKidView;
+    private Kid currentKid;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mKidView = new KidViewFragment();
     }
 
     @Override
@@ -43,9 +47,27 @@ public class NotifyFragment extends Fragment implements LoaderManager.LoaderCall
         View rootView = inflater.inflate(R.layout.fragment_notify,container,false);
         ListView notificationsList = (ListView)rootView.findViewById(R.id.listview_notifications);
         notificationsList.setAdapter(notificationAdapter);
+        mKidView.setCurrentKid(currentKid);
+        View header = inflater.inflate(R.layout.kid_and_notif, null);
+        notificationsList.addHeaderView(header);
+
+        header.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override public void onViewDetachedFromWindow(View v) {}
+            @Override public void onViewAttachedToWindow(View v) {
+                getChildFragmentManager()
+                        .beginTransaction()
+                        .add(R.id.list_header_container, mKidView)
+                        .commit();
+            }
+        });
+
         /*NotificationDAO notificationDAO = new NotificationDAO(getActivity());
         List<Notification> notifications = notificationDAO.getAllNotifications();*/
         return rootView;
+    }
+
+    public void setCurrentKid(Kid currentKid) {
+        this.currentKid = currentKid;
     }
 
 

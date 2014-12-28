@@ -181,7 +181,7 @@ public MainActivity(){
 
         @Override
         public Fragment getItem(int position) {
-            KidViewFragment kidView = new KidViewFragment();
+            NotifyFragment kidView = new NotifyFragment();
             kidView.setCurrentKid(kids.get(position));
             return kidView;
         }
