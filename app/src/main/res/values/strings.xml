@@ -12,5 +12,8 @@
     <string name="title_edit_kids">Edit</string>
     <string name="title_activity_edit_kid">EditKid</string>
     <string name="title_first_open_activity">FirstOpenActivity</string>
+    <string name="lorem_ipsum">Totototototototototototot</string>
+    <string name="delete_kid">Delete</string>
+    <string name="notify">Notify</string>
 
 </resources>
