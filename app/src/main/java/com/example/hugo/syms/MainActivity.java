@@ -34,7 +34,7 @@ import junit.framework.Assert;
 import java.util.ArrayList;
 import java.util.List;
 
-
+//TODO:  only a listview in the xml and the viewpager in listview_header.xml inflate and set as header
 public class MainActivity extends ActionBarActivity{
 
     private static final int FIRST_LAUNCH_REQUEST = 1;

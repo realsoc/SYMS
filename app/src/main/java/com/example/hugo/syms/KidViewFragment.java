@@ -77,8 +77,6 @@ public class KidViewFragment extends Fragment {
                 kidPicture.setImageBitmap(bMap);
             }
 
-            Log.d("exemple",String.valueOf(R.drawable.ic_action_accept));
-
         }
 
 

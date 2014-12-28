@@ -1,6 +1,7 @@
 package com.example.hugo.syms;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.hugo.syms.data.DatabaseContract;
 import com.example.hugo.syms.data.DatabaseHelper;
@@ -43,6 +45,9 @@ public class NotifyFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        if ((savedInstanceState != null) && (savedInstanceState.getParcelable("kid") != null)) {
+            currentKid = (Kid) savedInstanceState.getParcelable("kid");
+        }
         notificationAdapter = new NotificationAdapter(getActivity(),null,0);
         View rootView = inflater.inflate(R.layout.fragment_notify,container,false);
         ListView notificationsList = (ListView)rootView.findViewById(R.id.listview_notifications);
@@ -77,18 +82,11 @@ public class NotifyFragment extends Fragment implements LoaderManager.LoaderCall
 
         public NotificationLoader(Context context) {
             super(context);
-            Log.d("NOtFL", "constructor");
             notificationDAO = new NotificationDAO(context);
         }
 
         @Override
         public Cursor loadInBackground() {
-            Log.d("NOtF", "loadinback");
-            List<Notification> notifications = notificationDAO.getAllNotifications();
-            for(Notification not : notifications){
-                Log.d(not.getTitle() , not.getText());
-            }
-            Log.d("Notif", "done");
             return notificationDAO.getAllNotificationsCursor();
         }
 
@@ -116,6 +114,24 @@ public class NotifyFragment extends Fragment implements LoaderManager.LoaderCall
     public void onResume() {
         super.onResume();
             getLoaderManager().restartLoader(NOTIFICATION_LOADER, null, this);
+    }
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable("kid", currentKid);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        mKidView.onActivityResult(requestCode,resultCode,data);
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) { }
+        else {  }
     }
 
 }
