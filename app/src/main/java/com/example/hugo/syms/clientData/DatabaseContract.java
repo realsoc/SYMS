@@ -1,4 +1,4 @@
-package com.example.hugo.syms.data;
+package com.example.hugo.syms.clientData;
 
 import android.provider.BaseColumns;
 
@@ -28,7 +28,7 @@ public static abstract class Notifications implements BaseColumns{
     public static final String CREATE_TABLE = "CREATE TABLE " +
             TABLE_NAME + " (" +
             _ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-            COLUMN_ICON + NOT_NULL_INT_TYPE + COMMA_SEP +
+            COLUMN_ICON + NOT_NULL_TEXT_TYPE + COMMA_SEP +
             COLUMN_TITLE + NOT_NULL_TEXT_TYPE + COMMA_SEP +
             COLUMN_TEXT + NOT_NULL_TEXT_TYPE + COMMA_SEP +
             COLUMN_TYPE + TEXT_TYPE +" );";

@@ -9,9 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.text.InputType;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -21,9 +19,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.hugo.syms.data.Kid;
+import com.example.hugo.syms.clientData.Kid;
 import com.shamanland.fab.FloatingActionButton;
 
 /**
@@ -36,8 +33,6 @@ public class KidViewFragment extends Fragment {
     private ImageView kidPicture;
     private EditText kidNameEdit;
     private TextView kidName;
-    private OnOffHScrollView pictureHScroll;
-    private OnOffVScrollView pictureVScroll;
     private FloatingActionButton kidModify;
     private GestureDetector gestureDetector;
 
@@ -60,12 +55,9 @@ public class KidViewFragment extends Fragment {
         kidNameEdit = (EditText) rootView.findViewById(R.id.kid_name_edit);
         kidName = (TextView) rootView.findViewById(R.id.kid_name);
         kidPicture = (ImageView) rootView.findViewById(R.id.kid_picture);
-        pictureHScroll = (OnOffHScrollView) rootView.findViewById(R.id.kid_picture_scrollH);
-        pictureVScroll = (OnOffVScrollView) rootView.findViewById(R.id.kid_picture_scrollV);
+
         gestureDetector = new GestureDetector(getActivity(), new SingleTapConfirm());
 
-        pictureVScroll.setEnableScrolling(true);
-        pictureHScroll.setEnableScrolling(true);
         if ((savedInstanceState != null) && (savedInstanceState.getParcelable("kid") != null)) {
             currentKid = (Kid) savedInstanceState.getParcelable("kid");
         }
@@ -138,8 +130,6 @@ public class KidViewFragment extends Fragment {
     }
 
     public void editKid(){
-        pictureHScroll.setEnableScrolling(true);
-        pictureVScroll.setEnableScrolling(true);
         kidNameEdit.setHint(kidName.getText());
         kidNameEdit.setInputType(InputType.TYPE_CLASS_TEXT);
         kidName.setVisibility(View.INVISIBLE);
@@ -149,8 +139,6 @@ public class KidViewFragment extends Fragment {
     }
 
     public void editKidOk(){
-        pictureHScroll.setEnableScrolling(false);
-        pictureVScroll.setEnableScrolling(false);
         if(!kidNameEdit.getText().toString().equals("")){
             currentKid.setName(kidNameEdit.getText().toString());
             kidNameEdit.setText("");

@@ -15,15 +15,10 @@
     android:background="@color/blue01"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content">
-    <com.example.hugo.syms.OnOffVScrollView
-        android:id="@+id/kid_picture_scrollV"
-        android:layout_width="fill_parent"
+    <LinearLayout
+        android:id="@+id/kid_picture_container"
+        android:layout_width="match_parent"
         android:layout_height="250dp">
-        <com.example.hugo.syms.OnOffHScrollView
-            android:id="@+id/kid_picture_scrollH"
-            android:fillViewport="true"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
     <ImageView
         android:id="@+id/kid_picture"
         android:minHeight="250dp"
@@ -32,12 +27,11 @@
         android:layout_width="match_parent"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_contact_picture_180_holo_light"/>
-        </com.example.hugo.syms.OnOffHScrollView>
-    </com.example.hugo.syms.OnOffVScrollView>
+    </LinearLayout>
     <com.shamanland.fab.FloatingActionButton
         android:id="@+id/kid_modify"
         android:layout_alignParentRight="true"
-        android:layout_alignBottom="@+id/kid_picture_scrollV"
+        android:layout_alignBottom="@+id/kid_picture_container"
         android:layout_marginBottom="-32dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -46,25 +40,41 @@
         android:layout_marginRight="30dp"
         app:floatingActionButtonColor="@color/red05"
         />
+    <LinearLayout
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/kid_picture_container">
+        <ImageView
+            android:id="@+id/chevron_left"
+            android:layout_marginLeft="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center_vertical"
+            android:src="@drawable/ic_stat_navigation_chevron_left"/>
+        <RelativeLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
     <TextView
         android:textColor="#ffffff"
-        android:editable="false"
         android:layout_marginTop="10dp"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/kid_picture_scrollV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Alice"
         android:id="@+id/kid_name"
-        android:textSize="50dp"
-        android:textAlignment="center"/>
+        android:textSize="50sp"
+        android:maxLength="15"
+        android:singleLine="true"/>
     <EditText
         android:textColor="#ffffff"
         android:background="#00000000"
         android:visibility="invisible"
         android:layout_marginTop="10dp"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/kid_picture_scrollV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/kid_name_edit"
@@ -80,6 +90,15 @@
         android:textSize="25dp"
         android:layout_marginBottom="20dp"
         android:layout_below="@+id/kid_name"/>
+        </RelativeLayout>
+        <ImageView
+            android:id="@+id/chevron_right"
+            android:layout_marginRight="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center_vertical"
+            android:src="@drawable/ic_stat_navigation_chevron_right"/>
+    </LinearLayout>
 
 </RelativeLayout>
 

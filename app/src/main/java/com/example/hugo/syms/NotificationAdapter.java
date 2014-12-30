@@ -1,60 +1,75 @@
 package com.example.hugo.syms;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.support.v4.widget.CursorAdapter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.hugo.syms.data.DatabaseContract;
+import com.example.hugo.syms.clientData.Notification;
 
-public class NotificationAdapter extends CursorAdapter {
+import java.util.List;
+
+public class NotificationAdapter extends ArrayAdapter<Notification> {
 
 
 
-    public static class ViewHolder {
+    Context context;
+    int layoutResourceId;
+    List<Notification> data = null;
 
-        public final ImageView iconView;
-        public final TextView titleView;
-        public final TextView textView;
+    public NotificationAdapter(Context context, int layoutResourceId, List<Notification> data) {
+        super(context, layoutResourceId, data);
+        this.layoutResourceId = layoutResourceId;
+        this.context = context;
+        this.data = data;
+    }
 
-        public ViewHolder(View view) {
-            iconView = (ImageView) view.findViewById(R.id.notification_icon);
-            titleView = (TextView) view.findViewById(R.id.notification_title);
-            textView = (TextView) view.findViewById(R.id.notification_text);
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        View row = convertView;
+        ViewHolder holder = null;
+
+        if(row == null)
+        {
+            LayoutInflater inflater = ((MainActivity)context).getLayoutInflater();
+            row = inflater.inflate(layoutResourceId, parent, false);
+
+            holder = new ViewHolder();
+
+
+
+            // set circle bitmap
+            holder.iconView = (ImageView) row.findViewById(R.id.notification_icon);
+            holder.titleView = (TextView)row.findViewById(R.id.notification_title);
+            holder.textView = (TextView)row.findViewById(R.id.notification_text);
+            row.setTag(holder);
+
         }
+        else
+        {
+            holder = (ViewHolder)row.getTag();
+        }
+        int tata =row.getResources().getIdentifier("com.example.hugo.syms:drawable/"+data.get(position).getIcon(), null,null);
+        Bitmap bm = BitmapFactory.decodeResource(context.getResources(),
+                tata);
+        Notification notification = data.get(position);
+        holder.titleView.setText(notification.getTitle());
+        holder.textView.setText(notification.getText());
+        holder.iconView.setImageBitmap(Utils.getCircleBitmap(bm, context));
+        //holder.iconView.setImageResource(row.getResources().getIdentifier("com.example.hugo.syms:drawable/"+notification.getIcon(),null,null));
+
+        return row;
     }
 
-    public NotificationAdapter(Context context, Cursor c, int flags) {
-        super(context, c, flags);
+    public static class ViewHolder
+    {
+        public ImageView iconView;
+        public TextView titleView;
+        public TextView textView;
     }
-
-    @Override
-    public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        // Choose the layout type
-        int viewType = getItemViewType(cursor.getPosition());
-        View view = LayoutInflater.from(context).inflate(R.layout.list_item_notifications, parent, false);
-        ViewHolder viewHolder = new ViewHolder(view);
-        view.setTag(viewHolder);
-
-        return view;
-    }
-
-    @Override
-    public void bindView(View view, Context context, Cursor cursor) {
-
-        ViewHolder viewHolder = (ViewHolder) view.getTag();
-
-        getItemViewType(cursor.getPosition());
-        int intIcon = cursor.getColumnIndex(DatabaseContract.Notifications.COLUMN_ICON);
-        int intTitle = cursor.getColumnIndex(DatabaseContract.Notifications.COLUMN_TITLE);
-        int intText = cursor.getColumnIndex(DatabaseContract.Notifications.COLUMN_TEXT);
-        viewHolder.iconView.setImageResource(cursor.getInt(intIcon));
-        viewHolder.titleView.setText(cursor.getString(intTitle));
-        viewHolder.textView.setText(cursor.getString(intText));
-    }
-
 }

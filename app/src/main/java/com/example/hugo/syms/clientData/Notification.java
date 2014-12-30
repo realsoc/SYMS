@@ -1,15 +1,25 @@
-package com.example.hugo.syms.data;
+package com.example.hugo.syms.clientData;
 
 /**
  * Created by Hugo on 26/12/2014.
  */
 public class Notification {
-    private int icon;
+    private String icon;
     private String title;
     private String text;
     private String type;
     private long _id;
-    public Notification(long _id,int icon, String title, String text, String type){
+    public Notification(String icon, String title, String text){
+        this.icon = icon;
+        this.title = title;
+        this.text = text;
+    }
+    public Notification(String title, String text){
+        this.icon = "ic_action_new";
+        this.title = title;
+        this.text = text;
+    }
+    public Notification(long _id,String icon, String title, String text, String type){
         this._id = _id;
         this.icon = icon;
         this.title = title;
@@ -17,7 +27,7 @@ public class Notification {
         this.type = type;
     }
 
-    public int getIcon() {
+    public String getIcon() {
         return icon;
     }
 

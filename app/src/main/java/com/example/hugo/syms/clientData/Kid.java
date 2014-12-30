@@ -1,4 +1,4 @@
-package com.example.hugo.syms.data;
+package com.example.hugo.syms.clientData;
 
 import android.os.Parcel;
 import android.os.Parcelable;

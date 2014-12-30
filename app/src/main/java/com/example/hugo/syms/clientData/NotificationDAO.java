@@ -1,11 +1,9 @@
-package com.example.hugo.syms.data;
+package com.example.hugo.syms.clientData;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,10 +14,18 @@ import java.util.List;
 public class NotificationDAO {
     private DatabaseHelper mDbHelper;
     private SQLiteDatabase mDb;
+    private static NotificationDAO instance;
 
-    public NotificationDAO(Context context){
+    private NotificationDAO(Context context){
         mDbHelper = new DatabaseHelper(context);
         mDb = mDbHelper.getWritableDatabase();
+    }
+
+    public static NotificationDAO getInstance(Context context) {
+        if(instance == null){
+            instance = new NotificationDAO(context);
+        }
+        return instance;
     }
 
     public void addNotification(Notification notification) {
@@ -38,7 +44,7 @@ public class NotificationDAO {
         if (cursor != null)
             cursor.moveToFirst();
 
-        Notification notification = new Notification( Long.parseLong(cursor.getString(0)),Integer.parseInt(cursor.getString(1)),
+        Notification notification = new Notification( Long.parseLong(cursor.getString(0)),cursor.getString(1),
                 cursor.getString(2), cursor.getString(3), cursor.getString(4));
         cursor.close();
         return notification;
@@ -61,7 +67,7 @@ public class NotificationDAO {
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
-                Notification notification = new Notification(Long.parseLong(cursor.getString(0)), Integer.parseInt(cursor.getString(1)), cursor.getString(2), cursor.getString(3), cursor.getString(4));
+                Notification notification = new Notification(Long.parseLong(cursor.getString(0)), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4));
 
                 notificationsList.add(notification);
             } while (cursor.moveToNext());

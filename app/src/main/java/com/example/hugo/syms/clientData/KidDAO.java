@@ -1,11 +1,11 @@
-package com.example.hugo.syms.data;
+package com.example.hugo.syms.clientData;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.example.hugo.syms.data.DatabaseContract.Kids;
+import com.example.hugo.syms.clientData.DatabaseContract.Kids;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,11 +16,20 @@ import java.util.List;
 public class KidDAO {
     private DatabaseHelper mDbHelper;
     private SQLiteDatabase mDb;
+    private static KidDAO instance;
 
-    public KidDAO(Context context){
+    private KidDAO(Context context){
         mDbHelper = new DatabaseHelper(context);
         mDb = mDbHelper.getWritableDatabase();
     }
+
+    public static KidDAO getInstance(Context context) {
+        if(instance ==null){
+            instance = new KidDAO(context);
+        }
+        return instance;
+    }
+
 
     public void addKid(Kid kid) {
         ContentValues values = new ContentValues();
@@ -31,13 +40,13 @@ public class KidDAO {
     }
 
     public Kid getKid(long id) {
-        Cursor cursor = mDb.query(Kids.TABLE_NAME, new String[] { Kids._ID,
-                        Kids.COLUMN_NAME, Kids.COLUMN_NUMBER, Kids.COLUMN_PICTURE }, Kids._ID + "=?",
-                new String[] { String.valueOf(id) }, null, null, null, null);
+        Cursor cursor = mDb.query(Kids.TABLE_NAME, new String[]{Kids._ID,
+                        Kids.COLUMN_NAME, Kids.COLUMN_NUMBER, Kids.COLUMN_PICTURE}, Kids._ID + "=?",
+                new String[]{String.valueOf(id)}, null, null, null, null);
         if (cursor != null)
             cursor.moveToFirst();
 
-        Kid kid = new Kid( Long.parseLong(cursor.getString(0)),cursor.getString(1),
+        Kid kid = new Kid(Long.parseLong(cursor.getString(0)), cursor.getString(1),
                 cursor.getString(2), cursor.getString(3));
         cursor.close();
         return kid;
