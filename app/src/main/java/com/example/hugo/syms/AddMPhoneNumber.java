@@ -16,8 +16,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import java.sql.SQLException;
-
 public class AddMPhoneNumber extends DialogFragment {
 
     @Override
@@ -43,14 +41,13 @@ public class AddMPhoneNumber extends DialogFragment {
 
                     @Override
                     public void onClick(View v) {
-                        String number = "+"+et.getText().toString();
+                        String number = et.getText().toString();
                         if (!isPhoneValid(number)) {
                             et.setError("Invalid number!");
                             return;
                         }
-
-
-                        Utils.addMPhoneNumber(number);
+                        Utils.addMPhoneNumber("+33"+number.subSequence(1,number.length()));
+                        new GcmRegistrationAsyncTask(ctx).execute();
                         alert.dismiss();
                     }
                 });
@@ -62,5 +59,4 @@ public class AddMPhoneNumber extends DialogFragment {
     private boolean isPhoneValid(CharSequence phone) {
         return Patterns.PHONE.matcher(phone).matches();
     }
-
 }

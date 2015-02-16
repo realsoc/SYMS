@@ -1,16 +1,19 @@
 package com.example.hugo.syms;
 
 
+import android.accounts.AccountManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
-import android.telephony.PhoneNumberUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,31 +21,28 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
-
+import android.widget.Toast;
 
 import com.example.hugo.syms.clientData.Kid;
 import com.example.hugo.syms.clientData.KidDAO;
 import com.example.hugo.syms.clientData.Notification;
 import com.example.hugo.syms.clientData.NotificationDAO;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class MainActivity extends ActionBarActivity{
 
 
     private static final int PICK_CONTACT_REQUEST = 3;
     private NotificationAdapter notificationAdapter;
-    private KidDAO kidDAO;
-    private NotificationDAO notificationDAO;
-    private List<Kid> kids;
-    private List<Notification> notifications;
     private ListView listView;
     private ViewPager mPager;
     private ScreenSlidePagerAdapter mPagerAdapter;
     private int width;
     private View header;
+    private Vibrator v;
 
 public MainActivity(){
     super();
@@ -51,6 +51,7 @@ public MainActivity(){
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
         int position =0;
         if(savedInstanceState != null){
             position = savedInstanceState.getInt("position");
@@ -60,46 +61,51 @@ public MainActivity(){
             AddMPhoneNumber dialog = new AddMPhoneNumber();
             dialog.show(getSupportFragmentManager(), "Enter your phone number");
         }
-        kidDAO = KidDAO.getInstance(this);
-        notificationDAO = NotificationDAO.getInstance(this);
         width =Utils.getWidthScreen(this);
-        new GcmRegistrationAsyncTask(this).execute();
+        if(!Utils.getMPhoneNumber().equals("0000")){
+            new GcmRegistrationAsyncTask(this).execute();
+        }
         initPager(position);
     }
 
    public void initPager(int position){
+       Utils.setKids(Utils.getKidDAO().getAllKids());
+       Utils.setNotifications(Utils.getNotificationDAO().getAllNotifications());
 
-       kids = kidDAO.getAllKids();
-       notifications = notificationDAO.getAllNotifications();
+       header = getLayoutInflater().inflate(R.layout.header_fragment,null, false);
 
-       header = getLayoutInflater().inflate(R.layout.header_fragment, null, false);
 
        listView = (ListView) findViewById(R.id.listview_notifications);
 
        mPager = (ViewPager) header.findViewById(R.id.pager);
 
-       notificationAdapter = new NotificationAdapter(this,R.layout.list_item_notifications,notifications);
+       notificationAdapter = new NotificationAdapter(this,R.layout.list_item_notifications,Utils.getNotifications());
 
        mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
 
-       listView.setAdapter(notificationAdapter);
+
        mPager.setPageTransformer(true, new ZoomOutPageTransformer());
        mPager.setAdapter(mPagerAdapter);
-       if(kids !=null){
+       if(Utils.getKids() !=null){
            mPager.setCurrentItem(position);
        }
        setLayoutParams(header, width, 1143);
 
+       listView.setDividerHeight(0);
        listView.addHeaderView(header,null,false);
-
+       listView.setAdapter(notificationAdapter);
        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
            @Override
            public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-               if(position == 1){
-                   showDialogNewNotif();
-               }
-               else{
-                   Utils.showNotif(MainActivity.this, notifications.get(position-1));
+               if(Utils.getKids().size()>0){
+                   if(position == 1){
+                       showDialogNewNotif();
+                       //initPager(mPager.getCurrentItem());
+                   }
+                   else{
+                       v.vibrate(200);
+                       new SendNotifAsyncTask(getBaseContext(),getKid(),Utils.getNotifications().get(position-1)).execute();
+                   }
                }
 
            }
@@ -126,8 +132,8 @@ public MainActivity(){
             pickContact();
             return true;
         }if(id==R.id.action_delete){
-            if(kids.size()>0){
-                Kid currentKid = kids.get(mPager.getCurrentItem());
+            if(Utils.getKids().size()>0){
+                Kid currentKid = Utils.getKids().get(mPager.getCurrentItem());
                 removeKid(currentKid);
             }
         }
@@ -169,18 +175,22 @@ public MainActivity(){
         header.setLayoutParams(headerViewParams);
     }
 
+    public Kid getKid(){
+        int position = mPager.getCurrentItem();
+        return Utils.getKids().get(position);
+    }
     public void addKid(Kid newKid){
-        kidDAO.addKid(newKid);
-        this.kids = kidDAO.getAllKids();
+        Utils.getKidDAO().addKid(newKid);
+        Utils.setKids(Utils.getKidDAO().getAllKids());
         refreshPager(false);
     }
     public void updateKid(Kid kid){
-        kidDAO.updateKid(kid);
+        Utils.getKidDAO().updateKid(kid);
         refreshPager(false);
     }
     public void removeKid(Kid kid){
-        kidDAO.deleteKid(kid);
-        kids.remove(kid);
+        Utils.getKidDAO().deleteKid(kid);
+        Utils.getKids().remove(kid);
         refreshPager(true);
     }
 
@@ -210,19 +220,20 @@ public MainActivity(){
         @Override
         public Fragment getItem(int position) {
             KidViewFragment kidView = new KidViewFragment();
-            kidView.setCurrentKid(kids.get(position));
+            kidView.setCurrentKid(Utils.getKids().get(position));
             return kidView;
         }
 
         @Override
         public int getCount() {
-            return kidDAO.getKidsCount();
+            return Utils.getKidDAO().getKidsCount();
         }
         @Override
         public String getTag(int position) {
-            return kids.get(position).getNumber();
+            return Utils.getKids().get(position).getNumber();
         }
     }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {

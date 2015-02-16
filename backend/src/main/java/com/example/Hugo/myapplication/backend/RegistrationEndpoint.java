@@ -10,25 +10,35 @@ import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.response.CollectionResponse;
+import com.google.api.server.spi.response.UnauthorizedException;
+import com.google.appengine.api.users.User;
 
 import java.util.List;
 import java.util.logging.Logger;
 
 import javax.inject.Named;
 
+import sun.rmi.runtime.Log;
+
 import static com.example.Hugo.myapplication.backend.OfyService.ofy;
 
 /**
  * A registration endpoint class we are exposing for a device's GCM registration id on the backend
- * <p/>
- * For more information, see
- * https://developers.google.com/appengine/docs/java/endpoints/
- * <p/>
- * NOTE: This endpoint does not use any form of authorization or
- * authentication! If this app is deployed, anyone can access this endpoint! If
- * you'd like to add authentication, take a look at the documentation.
- */
-@Api(name = "registration", version = "v1", namespace = @ApiNamespace(ownerDomain = "backend.myapplication.Hugo.example.com", ownerName = "backend.myapplication.Hugo.example.com", packagePath = ""))
+        * <p/>
+        * For more information, see
+        * https://developers.google.com/appengine/docs/java/endpoints/
+        * <p/>
+        * NOTE: This endpoint does not use any form of authorization or
+        * authentication! If this app is deployed, anyone can access this endpoint! If
+        * you'd like to add authentication, take a look at the documentation.
+        */
+@Api(
+        name = "registration",
+        version = "v1",
+        namespace = @ApiNamespace(
+                ownerDomain = "backend.myapplication.Hugo.example.com",
+                ownerName = "backend.myapplication.Hugo.example.com",
+                packagePath = ""))
 public class RegistrationEndpoint {
 
     private static final Logger log = Logger.getLogger(RegistrationEndpoint.class.getName());
@@ -60,7 +70,7 @@ public class RegistrationEndpoint {
      * @param regId The Google Cloud Messaging registration Id to remove
      */
     @ApiMethod(name = "unregister")
-    public void unregisterDevice(@Named("regId") String regId) {
+    public void unregisterDevice(@Named("regId") String regId)  {
         RegistrationRecord record = findRecord(regId);
         if (record == null) {
             log.info("Device " + regId + " not registered, skipping unregister");
@@ -81,8 +91,12 @@ public class RegistrationEndpoint {
         return CollectionResponse.<RegistrationRecord>builder().setItems(records).build();
     }
 
-    private RegistrationRecord findRecord(String regId) {
+    public static RegistrationRecord findRecord(String regId) {
         return ofy().load().type(RegistrationRecord.class).filter("regId", regId).first().now();
     }
+    public static RegistrationRecord findRecordByPhone(String phone) {
+        return ofy().load().type(RegistrationRecord.class).filter("phone", phone).first().now();
+    }
+
 
 }

@@ -9,38 +9,24 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.v4.app.DialogFragment;
 import android.text.InputType;
-import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.example.hugo.syms.clientData.Kid;
+import com.example.hugo.syms.clientData.Notification;
 
 /**
  * Created by Hugo on 29/12/2014.
  */
-
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.text.InputType;
-import android.util.Patterns;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-
-import com.example.hugo.syms.clientData.Notification;
-
-import java.sql.SQLException;
-
 public class NewNotifDialog extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        final Vibrator vib = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
         final Context ctx = getActivity();
         final EditText titleEdit = new EditText(ctx);
         final EditText textEdit = new EditText(ctx);
@@ -65,10 +51,13 @@ public class NewNotifDialog extends DialogFragment {
 
                     @Override
                     public void onClick(View v) {
+                        String icon ="ic_action_new";
                         String text = textEdit.getText().toString();
                         String title = titleEdit.getText().toString();
-                        Notification notification = new Notification(title,text);
-                        Utils.showNotif(getActivity(), notification);
+                        //Utils.getNotificationDAO().addNotification(new Notification(icon, title, text));
+                        Kid to = ((MainActivity)getActivity()).getKid();
+                        new SendNotifAsyncTask(getActivity(),false, to, icon, title, text).execute();
+                        vib.vibrate(200);
                         alert.dismiss();
                     }
                 });

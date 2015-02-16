@@ -13,44 +13,103 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
-import android.telephony.PhoneNumberUtils;
-import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.widget.Toast;
 
+import com.example.hugo.syms.clientData.Kid;
+import com.example.hugo.syms.clientData.KidDAO;
 import com.example.hugo.syms.clientData.Notification;
+import com.example.hugo.syms.clientData.NotificationDAO;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 
 /**
  * Created by Hugo on 28/12/2014.
  */
 public class Utils extends Application  {
     private static final int NOTIFICATION_ID = 12;
-
     private static SharedPreferences prefs;
+    private static Context context;
+    private  static KidDAO kidDAO;
+    private static NotificationDAO notificationDAO;
+    private static List<Kid> kids;
+    private static List<Notification> notifications;
+
+
+    public static void setKids(List<Kid> kids) {
+        Utils.kids = kids;
+    }
+    public static void addKid(Kid kid){
+
+    }
+    public static void addNotification(Notification notification){
+
+    }
+    public static void removeKid(Kid kid){
+
+    }
+    public static void removeNotification(Notification notification){
+
+    }
+
+    public static List<Kid> getKids() {
+        return kids;
+    }
+
+    public static List<Notification> getNotifications() {
+        return notifications;
+    }
+
+    public static KidDAO getKidDAO() {
+        return kidDAO;
+    }
+
+    public static NotificationDAO getNotificationDAO() {
+        return notificationDAO;
+    }
+
 
     @Override
     public void onCreate() {
         super.onCreate();
+        if (context == null){
+            context = getApplicationContext();
+        }
+        kidDAO = KidDAO.getInstance(this);
+        notificationDAO = NotificationDAO.getInstance(this);
         this.prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
     }
 
 
-    public static void showNotif(Context context, Notification notification){
+
+
+
+    public static void setRegId(String regId) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("regId", "0000");
+        editor.apply();
+    }
+
+    public static SharedPreferences getPrefs() {
+        return prefs;
+    }
+
+    public static String getRegId(){
+        return prefs.getString("regId","0000");
+    }
+
+
+
+    public static void showNotif(Context context, Notification notification, String from){
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
-                        .setSmallIcon(context.getResources().getIdentifier("com.example.hugo.syms:drawable/"+notification.getIcon(),null,null))
-                        .setContentTitle(notification.getTitle())
+                        .setSmallIcon(context.getResources().getIdentifier("com.example.hugo.syms:drawable/"+notification.getIcon()+"_l",null,null))
+                        .setContentTitle(from+" : "+notification.getTitle())
                         .setContentText(notification.getText());
         Intent resultIntent = new Intent(context, MainActivity.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
@@ -97,75 +156,42 @@ public class Utils extends Application  {
         return output;
     }
 
-    /**
-     * Issue a POST request to the server.
-     *
-     * @param endpoint POST address.
-     * @param params request parameters.
-     *
-     * @throws IOException propagated from POST.
-     */
-    private static void post(String endpoint, Map<String, String> params) throws IOException {
-        URL url;
-        try {
-            url = new URL(endpoint);
-        } catch (MalformedURLException e) {
-            throw new IllegalArgumentException("invalid url: " + endpoint);
-        }
-        StringBuilder bodyBuilder = new StringBuilder();
-        Iterator<Map.Entry<String, String>> iterator = params.entrySet().iterator();
-        // constructs the POST body using the parameters
-        while (iterator.hasNext()) {
-            Map.Entry<String, String> param = iterator.next();
-            bodyBuilder.append(param.getKey()).append('=').append(param.getValue());
-            if (iterator.hasNext()) {
-                bodyBuilder.append('&');
-            }
-        }
-        String body = bodyBuilder.toString();
-        //Log.v(TAG, "Posting '" + body + "' to " + url);
-        byte[] bytes = body.getBytes();
-        HttpURLConnection conn = null;
-        try {
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setDoOutput(true);
-            conn.setUseCaches(false);
-            conn.setFixedLengthStreamingMode(bytes.length);
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-            // post the request
-            OutputStream out = conn.getOutputStream();
-            out.write(bytes);
-            out.close();
-            // handle the response
-            int status = conn.getResponseCode();
-            if (status != 200) {
-                throw new IOException("Post failed with error code " + status);
-            }
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
-        }
-    }
-
 
     public static String getServerUrl() {
-        return prefs.getString("server_url_pref", Constants.SERVER_URL);
+        return prefs.getString("server_url_pref", Constant.SERVER_URL);
     }
     public static String getSenderId() {
-        return prefs.getString("sender_id_pref", Constants.SENDER_ID);
+        return prefs.getString("sender_id_pref", Constant.SENDER_ID);
     }
 
     public static void addMPhoneNumber(String number) {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString("mPhone", number);
-        editor.apply();
+        editor.commit();
     }
     public static boolean isMPhoneIn(){
         return prefs.contains("mPhone");
     }
     public static String getMPhoneNumber() {
         return prefs.getString("mPhone", "0000");
+    }
+
+    public static void sendInvitationTo(String to) {
+        Toast.makeText(context,to+" doesn't have the app", Toast.LENGTH_SHORT).show();
+    }
+
+    public static Kid getKidByPhone(String from) {
+        Kid ret = null;
+        for(Kid current : kids){
+            if(current.getNumber().equals(from)){
+                ret = current;
+                break;
+            }
+        }
+        return ret;
+    }
+
+    public static void setNotifications(List<Notification> notifications) {
+        Utils.notifications = notifications;
     }
 }

@@ -1,16 +1,17 @@
 package com.example.hugo.syms;
 
-    import java.util.ArrayList;
-    import android.os.Bundle;
-    import android.os.Parcelable;
-    import android.support.v4.app.Fragment;
-    import android.support.v4.app.FragmentManager;
-    import android.support.v4.app.FragmentTransaction;
-    import android.support.v4.view.PagerAdapter;
-    import android.text.TextUtils;
-    import android.util.Log;
-    import android.view.View;
-    import android.view.ViewGroup;
+import android.os.Bundle;
+import android.os.Parcelable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.PagerAdapter;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+
+import java.util.ArrayList;
 
     public abstract class FragmentStatePagerAdapterFixed extends PagerAdapter {
         private static final String TAG = "FragmentStatePagerAdapter";

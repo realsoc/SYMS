@@ -44,10 +44,6 @@
     <orderEntry type="library" exported="" name="guava-14.0.1" level="project" />
     <orderEntry type="library" exported="" name="appengine-api-labs-1.7.6" level="project" />
     <orderEntry type="library" exported="" name="json-simple-1.1" level="project" />
-    <orderEntry type="library" name="backend-android-endpoints" level="project" />
-    <orderEntry type="library" name="play-services-6.1.71" level="project" />
-    <orderEntry type="library" name="google-http-client-android-1.19.0" level="project" />
-    <orderEntry type="library" name="google-api-client-1.19.0" level="project" />
   </component>
 </module>
 

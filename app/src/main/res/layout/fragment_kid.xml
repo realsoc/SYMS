@@ -8,7 +8,7 @@
 <LinearLayout xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 <RelativeLayout
@@ -46,17 +46,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/kid_picture_container">
-        <ImageView
-            android:id="@+id/chevron_left"
-            android:layout_marginLeft="5dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left|center_vertical"
-            android:src="@drawable/ic_stat_navigation_chevron_left"/>
         <RelativeLayout
             android:orientation="vertical"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            >
 
     <TextView
         android:textColor="#ffffff"
@@ -69,17 +63,17 @@
         android:textSize="50sp"
         android:maxLength="15"
         android:singleLine="true"/>
-    <EditText
-        android:textColor="#ffffff"
-        android:background="#00000000"
-        android:visibility="invisible"
-        android:layout_marginTop="10dp"
-        android:layout_centerHorizontal="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/kid_name_edit"
-        android:textSize="50dp"
-        android:textAlignment="center"/>
+            <EditText
+                android:textColor="#ffffff"
+                android:background="#00000000"
+                android:visibility="invisible"
+                android:layout_marginTop="10dp"
+                android:layout_centerHorizontal="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/kid_name_edit"
+                android:textSize="50dp"
+                android:textAlignment="center"/>
     <TextView
         android:id="@+id/kid_phone"
         android:textColor="#ffffff"
@@ -91,13 +85,6 @@
         android:layout_marginBottom="20dp"
         android:layout_below="@+id/kid_name"/>
         </RelativeLayout>
-        <ImageView
-            android:id="@+id/chevron_right"
-            android:layout_marginRight="5dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right|center_vertical"
-            android:src="@drawable/ic_stat_navigation_chevron_right"/>
     </LinearLayout>
 
 </RelativeLayout>

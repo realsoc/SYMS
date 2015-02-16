@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.PowerManager;
 import android.util.Log;
 
+import com.example.hugo.syms.clientData.Kid;
 import com.example.hugo.syms.clientData.Notification;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
@@ -21,11 +22,9 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         ctx = context;
-
         PowerManager mPowerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock mWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
         mWakeLock.acquire();
-
         try {
             GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(context);
 
@@ -37,19 +36,38 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
                 Log.d(TAG, "Deleted messages on server");
 
             } else {
-                String title = intent.getStringExtra("title");
-                String text = intent.getStringExtra("text");
-                String icon = intent.getStringExtra("icon");
-                Notification newNotif = new Notification("ic_contact_picture", "GCM", intent.getStringExtra("message"));
-                Utils.showNotif(context, newNotif);
-                Log.d(TAG, "Notif shown");
+                String type = intent.getStringExtra(Constant.MESSAGE_TYPE);
+                if(type.equals(Constant.CONTACT_NOT_FOUND)){
+                    sendInvitationFromIntent(context, intent);
+                    setResultCode(Activity.RESULT_OK);
+                }else if(type.equals(Constant.MESSAGE)){
+                    showNotifFromMessage(context,intent);
+                    setResultCode(Activity.RESULT_OK);
+                }
 
 
             }
-            setResultCode(Activity.RESULT_OK);
+
 
         } finally {
             mWakeLock.release();
         }
+    }
+
+    private void sendInvitationFromIntent(Context context, Intent intent){
+        String to = intent.getStringExtra(Constant.TO);
+        Utils.sendInvitationTo(to);
+    }
+    private void showNotifFromMessage(Context context, Intent intent){
+        String title = intent.getStringExtra(Constant.TITLE);
+        String text = intent.getStringExtra(Constant.TEXT);
+        String icon = intent.getStringExtra(Constant.ICON);
+        String from = intent.getStringExtra(Constant.FROM);
+        Notification newNotif = new Notification(icon, title, text);
+        Kid fromKid = Utils.getKidByPhone(from);
+        if(fromKid != null){
+            from = fromKid.getName();
+        }
+        Utils.showNotif(context, newNotif, from);
     }
 }
